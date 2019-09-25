@@ -131,9 +131,23 @@ public class GoodsServiceImpl implements GoodsService {
 			goodsMapper.deleteByPrimaryKey(id);
 		}		
 	}
-	
-	
-		@Override
+
+    /**
+     * 批量修改状态
+     * @param ids
+     * @param status
+     */
+    @Override
+    public void updateStatus(Long[] ids, String status) {
+        for(Long id : ids){
+            TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+            goods.setAuditStatus(status);
+            goodsMapper.updateByPrimaryKey(goods);
+        }
+    }
+
+
+    @Override
 	public PageResult findPage(TbGoods goods, int pageNum, int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		

@@ -51,6 +51,13 @@ public interface GoodsService {
 	 */
 	public void delete(Long [] ids);
 
+    /**
+     * 批量修改状态
+     * @param ids
+     * @param status
+     */
+	public void updateStatus(Long[] ids,String status);
+
 	/**
 	 * 分页
 	 * @param pageNum 当前页 码
