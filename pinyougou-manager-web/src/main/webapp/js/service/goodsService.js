@@ -25,6 +25,10 @@ app.service('goodsService',function($http){
 	this.dele=function(ids){
 		return $http.get('../goods/delete.do?ids='+ids);
 	}
+    //删除
+    this.isDele=function(ids){
+        return $http.get('../goods/isDelete.do?ids='+ids);
+    }
 	//搜索
 	this.search=function(page,rows,searchEntity){
 		return $http.post('../goods/search.do?page='+page+"&rows="+rows, searchEntity);

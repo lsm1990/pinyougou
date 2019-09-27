@@ -50,6 +50,11 @@ public interface GoodsService {
 	 * @param ids
 	 */
 	public void delete(Long [] ids);
+    /**
+     * 批量虚拟删除
+     * @param ids
+     */
+    public void isDelete(Long[] ids);
 
     /**
      * 批量修改状态

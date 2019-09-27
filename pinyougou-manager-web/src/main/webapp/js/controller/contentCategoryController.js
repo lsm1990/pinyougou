@@ -2,6 +2,8 @@
 app.controller('contentCategoryController' ,function($scope,$controller   ,contentCategoryService){	
 	
 	$controller('baseController',{$scope:$scope});//继承
+
+    $scope.status=['有效','无效','禁用'];//广告类目状态
 	
     //读取列表数据绑定到表单中  
 	$scope.findAll=function(){

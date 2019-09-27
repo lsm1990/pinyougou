@@ -15,6 +15,7 @@ import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 
 import entity.PageResult;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 服务实现层
@@ -22,6 +23,7 @@ import entity.PageResult;
  *
  */
 @Service
+@Transactional
 public class GoodsServiceImpl implements GoodsService {
 
 	@Autowired
@@ -131,6 +133,19 @@ public class GoodsServiceImpl implements GoodsService {
 			goodsMapper.deleteByPrimaryKey(id);
 		}		
 	}
+    /**
+     * 批量虚拟删除
+     */
+    @Override
+    public void isDelete(Long[] ids) {
+        for(Long id:ids){
+            TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+            //isDelete 1代表被移除，null正常
+            goods.setIsDelete("1");
+            goodsMapper.updateByPrimaryKey(goods);
+
+        }
+    }
 
     /**
      * 批量修改状态
@@ -153,6 +168,7 @@ public class GoodsServiceImpl implements GoodsService {
 		
 		TbGoodsExample example=new TbGoodsExample();
 		Criteria criteria = example.createCriteria();
+        criteria.andIsDeleteIsNull();//非删除状态
 		
 		if(goods!=null){			
 		    if(goods.getSellerId()!=null && goods.getSellerId().length()>0){

@@ -105,8 +105,30 @@ public class GoodsController {
 			return new Result(false, "删除失败");
 		}
 	}
-	
-		/**
+
+	@RequestMapping("/isDelete")
+    public Result isDelete(Long[] ids){
+	    try{
+	        goodsService.isDelete(ids);
+	        return new Result(true,"删除成功");
+        }catch (Exception e){
+	        e.printStackTrace();
+	        return new Result(false,"删除失败");
+        }
+    }
+
+    @RequestMapping("/updateStatus")
+    public Result updataStatus(Long[] ids,String status){
+	    try{
+	        goodsService.updateStatus(ids,status);
+	        return new Result(true,"商品状态更改成功");
+        }catch (Exception e){
+	        e.printStackTrace();
+	        return new Result(false,"商品状态修改失败");
+        }
+    }
+
+    /**
 	 * 查询+分页
 	 * @param goods
 	 * @param page

@@ -1,12 +1,15 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,$location   ,goodsService,uploadService,itemCatService,typeTemplateService){
+app.controller('goodsController' ,function($scope,$controller,$location ,goodsService,itemCatService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 
 
     $scope.status=['未审核','已审核','审核未通过','关闭'];//商品状态
     $scope.itemCatList=[];//商品分类列表
-    //查询商品分类
+
+    /**
+     * 查询商品分类
+     */
     $scope.findItemCatList=function(){
         itemCatService.findAll().success(
             function(response){
@@ -18,16 +21,23 @@ app.controller('goodsController' ,function($scope,$controller,$location   ,goods
     }
 
 
-    //读取列表数据绑定到表单中  
+    /**
+     * 读取列表数据绑定到表单中
+     *
+      */
 	$scope.findAll=function(){
 		goodsService.findAll().success(
 			function(response){
 				$scope.list=response;
 			}			
 		);
-	}    
-	
-	//分页
+	}
+
+    /**分页
+     *
+     * @param page
+     * @param rows
+     */
 	$scope.findPage=function(page,rows){			
 		goodsService.findPage(page,rows).success(
 			function(response){
@@ -37,7 +47,9 @@ app.controller('goodsController' ,function($scope,$controller,$location   ,goods
 		);
 	}
 
-    //查询实体
+    /**
+     * 查询实体
+     */
     $scope.findOne=function(){
         var id=$location.search()['id'];
         if(id==null){
@@ -64,7 +76,9 @@ app.controller('goodsController' ,function($scope,$controller,$location   ,goods
         );
     }
 
-    //查询一级商品分类列表
+    /**
+     * 查询一级商品分类列表
+     */
     $scope.selectItemCat1List=function(){
 
         itemCatService.findByParentId(0).success(
@@ -180,9 +194,24 @@ app.controller('goodsController' ,function($scope,$controller,$location   ,goods
 		);				
 	}
 
-    //批量更新状态
-    $scope.updateStatus=function(ids,status){
-        goodsService.updateStatus(ids,status).success(
+	//虚拟移除
+    $scope.isDele=function(){
+        goodsService.isDele($scope.selectIds).success(
+            function (response) {
+                if (response.success){
+                    $scope.reloadList();
+                    $scope.selectIds=[];//清空选择框
+                }
+
+            }
+        )
+    }
+
+    /**
+     * 批量更新状态
+     */
+    $scope.updateStatus=function(status){
+        goodsService.updateStatus($scope.selectIds,status).success(
             function (response) {
                 if(response.success){
                     $scope.reloadList();//刷新列表
@@ -221,4 +250,4 @@ app.controller('goodsController' ,function($scope,$controller,$location   ,goods
         );
 
     }
-});	
+});
