@@ -3,11 +3,10 @@
     <parent>
         <groupId>com.pinyougou</groupId>
         <artifactId>pinyougou-parent</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
+        <version>0.0.5-SNAPSHOT</version>
     </parent>
     <artifactId>pinyougou-portal-web</artifactId>
     <packaging>war</packaging>
-
 
     <dependencies>
         <!-- Spring -->
@@ -83,12 +82,12 @@
         <dependency>
             <groupId>com.pinyougou</groupId>
             <artifactId>pinyougou-common</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.pinyougou</groupId>
             <artifactId>pinyougou-content-interface</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

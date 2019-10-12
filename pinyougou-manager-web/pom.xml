@@ -87,9 +87,17 @@
 		<groupId>org.springframework.security</groupId>
 		<artifactId>spring-security-config</artifactId>		
 	</dependency>
-	
+       <!-- 文件上传组件 -->
+    <dependency>
+        <groupId>org.csource.fastdfs</groupId>
+        <artifactId>fastdfs</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+    </dependency>
 
-
+    <!--项目模块-->
 	<dependency>
 		<groupId>com.pinyougou</groupId>
 		<artifactId>pinyougou-sellergoods-interface</artifactId>
