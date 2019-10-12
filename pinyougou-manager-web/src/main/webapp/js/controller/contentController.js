@@ -1,8 +1,9 @@
  //控制层 
-app.controller('contentController' ,function($scope,$controller   ,contentService){	
+app.controller('contentController' ,function($scope,$controller   ,contentService,uploadService,contentCategoryService){
 	
 	$controller('baseController',{$scope:$scope});//继承
-	
+
+
     //读取列表数据绑定到表单中  
 	$scope.findAll=function(){
 		contentService.findAll().success(
@@ -76,5 +77,49 @@ app.controller('contentController' ,function($scope,$controller   ,contentServic
 			}			
 		);
 	}
-    
+
+
+    //上传广告图
+    // 文件上传的方法:
+    $scope.uploadFile=function(){
+        uploadService.uploadFile().success(
+            function(response){
+                if(response.success){
+                    $scope.entity.pic=response.message;
+                }else{
+                    alert("上传失败！");
+                }
+            }
+        ).error(
+            function(){
+                alert("上传出错！");
+            }
+        );
+    }
+
+    /* $scope.uploadFile = function(){
+         uploadService.uploadFile().success(
+             function(response){
+                 if(response.flag){
+                     $scope.entity.pic = response.message;
+                 }else{
+                     alert(response.message);
+                 }
+         });
+     }*/
+
+
+    $scope.status=["无效","有效"];
+
+    //加载广告分类列表
+    $scope.findContentCategoryList=function(){
+        contentCategoryService.findAll().success(
+            function(response){
+                $scope.contentCategoryList=response;
+            }
+        );
+    }
+
+
+
 });	

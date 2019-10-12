@@ -1,16 +1,18 @@
 package com.pinyougou.content.service.impl;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.pinyougou.content.service.ContentService;
 import com.pinyougou.mapper.TbContentMapper;
 import com.pinyougou.pojo.TbContent;
 import com.pinyougou.pojo.TbContentExample;
 import com.pinyougou.pojo.TbContentExample.Criteria;
-import com.pinyougou.content.service.ContentService;
-
 import entity.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import java.util.List;
 
 /**
  * 服务实现层
@@ -22,6 +24,8 @@ public class ContentServiceImpl implements ContentService {
 
 	@Autowired
 	private TbContentMapper contentMapper;
+	@Autowired
+	private RedisTemplate redisTemplate;
 	
 	/**
 	 * 查询全部
@@ -46,8 +50,11 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public void add(TbContent content) {
-		contentMapper.insert(content);		
-	}
+
+		contentMapper.insert(content);
+		//清除缓存
+         redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+    }
 
 	
 	/**
@@ -55,7 +62,18 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public void update(TbContent content){
-		contentMapper.updateByPrimaryKey(content);
+	    //查询修改前的categoryId
+        Long categroyId = contentMapper.selectByPrimaryKey(content.getId()).getCategoryId();
+        redisTemplate.boundHashOps("content").delete(categroyId);
+
+	    contentMapper.updateByPrimaryKey(content);
+        //如果categoryID发生了修改,清除修改后的分类ID的缓存
+        if(categroyId.longValue() != content.getCategoryId().longValue()){
+            redisTemplate.boundHashOps("content").delete(content.getCategoryId());
+        }
+
+
+
 	}	
 	
 	/**
@@ -65,7 +83,9 @@ public class ContentServiceImpl implements ContentService {
 	 */
 	@Override
 	public TbContent findOne(Long id){
-		return contentMapper.selectByPrimaryKey(id);
+
+	    return contentMapper.selectByPrimaryKey(id);
+
 	}
 
 	/**
@@ -74,6 +94,10 @@ public class ContentServiceImpl implements ContentService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
+		    //删除缓存
+		    Long categoryId =contentMapper.selectByPrimaryKey(id).getCategoryId();
+		    redisTemplate.boundHashOps("content").delete(categoryId);
+
 			contentMapper.deleteByPrimaryKey(id);
 		}		
 	}
@@ -105,5 +129,30 @@ public class ContentServiceImpl implements ContentService {
 		Page<TbContent> page= (Page<TbContent>)contentMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	@Override
+	public List<TbContent> findByCategoryId(Long categoryId) {
+		List<TbContent> contentList = (List<TbContent>) redisTemplate.boundHashOps("content").get(categoryId);
+		if(contentList==null){
+            //条件查询
+            TbContentExample contentExample = new TbContentExample();
+            Criteria criteria2 = contentExample.createCriteria();
+            criteria2.andCategoryIdEqualTo(categoryId);
+            //开启状态
+            criteria2.andStatusEqualTo("1");
+            // 排序
+            contentExample.setOrderByClause("sort_order");
+            // 获取广告列表
+            contentList = contentMapper.selectByExample(contentExample);
+            // 存入redis
+            redisTemplate.boundHashOps("content").put(categoryId,contentList);
+
+        }else {
+            System.out.println("从缓存读取数据");
+        }
+        return contentList;
+
+
+	}
+
 }

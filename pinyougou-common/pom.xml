@@ -16,7 +16,18 @@
 	<dependency>
 		<groupId>commons-fileupload</groupId>
 		<artifactId>commons-fileupload</artifactId>
-	</dependency> 
-  
+	</dependency>
+
+      <!-- 缓存 -->
+      <dependency>
+          <groupId>redis.clients</groupId>
+          <artifactId>jedis</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.data</groupId>
+          <artifactId>spring-data-redis</artifactId>
+      </dependency>
+
+
   </dependencies>
 </project>
