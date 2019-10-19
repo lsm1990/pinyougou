@@ -18,6 +18,7 @@ import com.pinyougou.pojo.TbTypeTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.TypeTemplateService;
 
 import entity.PageResult;
+import org.springframework.data.redis.core.RedisTemplate;
 
 /**
  * 服务实现层
@@ -32,7 +33,26 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	
 	@Autowired
 	private TbSpecificationOptionMapper specificationOptionMapper;
-	
+	@Autowired
+    private RedisTemplate redisTemplate;
+
+    /**
+     * 数据存入缓存
+     */
+	private void saveToRedis(){
+	    //获取模板数据
+        List<TbTypeTemplate> typeTemplatesList = findAll();
+        //循环模板
+        for(TbTypeTemplate typeTemplate:typeTemplatesList){
+            //存储品牌列表
+            List<Map> brandList = JSON.parseArray(typeTemplate.getBrandIds(),Map.class);
+            redisTemplate.boundHashOps("brandList").put(typeTemplate.getId(),brandList);
+            //储存规格列表
+            //通过模板Id查询规格列表
+            List<Map> specList = findSpecList(typeTemplate.getId());
+            redisTemplate.boundHashOps("specList").put(typeTemplate.getId(),specList);
+        }
+    }
 	/**
 	 * 查询全部
 	 */
@@ -56,7 +76,8 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	 */
 	@Override
 	public void add(TbTypeTemplate typeTemplate) {
-		typeTemplateMapper.insert(typeTemplate);		
+
+	    typeTemplateMapper.insert(typeTemplate);
 	}
 
 	
@@ -65,7 +86,8 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	 */
 	@Override
 	public void update(TbTypeTemplate typeTemplate){
-		typeTemplateMapper.updateByPrimaryKey(typeTemplate);
+
+	    typeTemplateMapper.updateByPrimaryKey(typeTemplate);
 	}	
 	
 	/**
@@ -112,7 +134,9 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 	
 		}
 		
-		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
+		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);
+		//数据存入缓存
+		saveToRedis();
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 		

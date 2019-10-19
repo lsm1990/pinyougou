@@ -2,6 +2,7 @@ package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.pinyougou.mapper.TbItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -24,6 +25,7 @@ public class BrandServiceImpl implements BrandService {
 
 	@Autowired
 	private TbBrandMapper brandMapper;
+
 	
 	/**
 	 * 查询全部
