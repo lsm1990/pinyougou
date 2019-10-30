@@ -1,4 +1,6 @@
 package com.pinyougou.sellergoods.service.impl;
+import java.net.StandardSocketOptions;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +157,19 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public void updateStatus(Long[] ids, String status) {
         for(Long id : ids){
+            //更新TbGoods表的AuditStatus
             TbGoods goods = goodsMapper.selectByPrimaryKey(id);
+            //条件查询出TbItem
+            TbItemExample itemExample = new TbItemExample();
+            TbItemExample.Criteria criteria = itemExample.createCriteria();
+            criteria.andGoodsIdEqualTo(id);
+            List<TbItem> list =itemMapper.selectByExample(itemExample);
+            for(TbItem item : list){
+                item.setStatus(status);
+                itemMapper.updateByPrimaryKey(item);
+            }
+
+            //0'未审核',1'已审核',2'审核未通过',3'关闭'
             goods.setAuditStatus(status);
             goodsMapper.updateByPrimaryKey(goods);
         }
@@ -203,8 +217,18 @@ public class GoodsServiceImpl implements GoodsService {
 		return new PageResult(page.getTotal(), page.getResult());
 	}
 
+    @Override
+    public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status) {
 
-	//插入SKU表
+        TbItemExample itemExample = new TbItemExample();
+        TbItemExample.Criteria criteria =itemExample.createCriteria();
+        criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+        criteria.andStatusEqualTo(status);
+        return itemMapper.selectByExample(itemExample);
+    }
+
+
+    //插入SKU表
     private void setItemList(Goods goods){
 	    //启用规格
 	    if("1".equals(goods.getGoods().getIsEnableSpec())){

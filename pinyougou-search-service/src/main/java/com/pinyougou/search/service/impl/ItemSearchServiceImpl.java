@@ -34,6 +34,12 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     public Map<String, Object> search(Map searchMap) {
 
         Map<String,Object> map = new HashMap<>();
+            //去空格处理（如不处理，搜索key+空格+key时会导致搜索不出内容；
+            String keywords = (String) searchMap.get("keywords");
+            //防止报空指针异常
+            if(keywords!=null){
+                searchMap.put("keywords",keywords.replace(" ",""));//去掉空格
+            }
         //1.按关键字查询（高亮）
         map.putAll(searchList(searchMap));
         //2.根据关键字查询商品分类
@@ -144,8 +150,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
             }
         }
 
-
-
         //***********  获取高亮结果集  ***********
         //高亮页对象
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
@@ -226,14 +230,20 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         return map;
     }
 
-
+    /**
+     * 向solr导入数据
+     * @param list
+     */
     @Override
     public void importList(List list) {
         solrTemplate.saveBeans(list);
         solrTemplate.commit();
     }
 
-
+    /**
+     * solr删除数据
+     * @param goodsIds (SPU)
+     */
     @Override
     public void deleteByGoodsIds(List goodsIds) {
 

@@ -1,9 +1,10 @@
 package com.pinyougou.sellergoods.service;
-import java.util.List;
 import com.pinyougou.pojo.TbGoods;
+import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
-
 import entity.PageResult;
+
+import java.util.List;
 /**
  * 服务层接口
  * @author Administrator
@@ -70,6 +71,14 @@ public interface GoodsService {
 	 * @return
 	 */
 	public PageResult findPage(TbGoods goods, int pageNum,int pageSize);
+
+    /**
+     * 通过goodid和商品状态查询商品表
+     * @param goodsIds
+     * @param status
+     * @return
+     */
+    public  List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status );
 	
 
 	

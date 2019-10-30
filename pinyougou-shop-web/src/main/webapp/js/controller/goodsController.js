@@ -115,7 +115,7 @@ app.controller('goodsController' ,function($scope,$controller ,$location  ,goods
 
 
     }
-
+    // 获得了image_entity的实体的数据{"color":"褐色","url":"http://192.168.209.132/group1/M00/00/00/wKjRhFn1bH2AZAatAACXQA462ec665.jpg"}
     $scope.entity={ goodsDesc:{itemImages:[],specificationItems:[]}  };
 
     //将当前上传的图片实体存入图片列表

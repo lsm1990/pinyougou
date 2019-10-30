@@ -32,6 +32,7 @@ public class TbItem implements Serializable{
 
     private Long categoryid;
 
+    //0待审核，1正常，2下架，3删除
     private String status;
 
     private Date createTime;

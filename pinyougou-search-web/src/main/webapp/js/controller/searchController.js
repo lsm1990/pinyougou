@@ -117,7 +117,7 @@ app.controller('searchController',function($scope,$location,searchService){
         return false;
     }
 
-    //加载关键字
+    //由主页接收加载关键字
     $scope.loadkeywords=function(){
         $scope.searchMap.keywords= $location.search()['keywords'];
         $scope.search();//查询

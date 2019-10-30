@@ -11,7 +11,7 @@ public class TbGoods implements Serializable{
     private String goodsName;
 
     private Long defaultItemId;
-
+    //0'未审核',1'已审核',2'审核未通过',3'关闭'
     private String auditStatus;
 
     private String isMarketable;

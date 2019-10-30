@@ -1,17 +1,24 @@
 package com.pinyougou.shop.controller;
-import java.util.List;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
-
 import entity.PageResult;
 import entity.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import java.util.List;
 /**
  * controller
  * @author Administrator
@@ -23,6 +30,13 @@ public class GoodsController {
 
 	@Reference
 	private GoodsService goodsService;
+
+	@Autowired
+    private JmsTemplate jmsTemplate;
+	@Autowired
+    private Destination queueSolrDeleteDestination;
+	@Autowired
+    private  Destination topicPageDeleteDestination;
 	
 	/**
 	 * 返回全部列表
@@ -104,16 +118,32 @@ public class GoodsController {
 	 * @param ids
 	 * @return
 	 */
-	@RequestMapping("/delete")
-	public Result delete(Long [] ids){
-		try {
-			goodsService.delete(ids);
-			return new Result(true, "删除成功"); 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new Result(false, "删除失败");
-		}
-	}
+    @RequestMapping("/delete")
+    public Result delete(final Long[] ids) {
+        try {
+            goodsService.delete(ids);
+
+            //发送消息，删除solr索引库
+            jmsTemplate.send(queueSolrDeleteDestination, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    return session.createObjectMessage(ids);
+                }
+            });
+            //发送消息，删除静态页
+            jmsTemplate.send(topicPageDeleteDestination, new MessageCreator() {
+                @Override
+                public Message createMessage(Session session) throws JMSException {
+                    return session.createObjectMessage(ids);
+                }
+            });
+//            itemSearchService.deleteByGoodsIds(Arrays.asList(ids));
+            return new Result(true, "删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false, "删除失败");
+        }
+    }
 
 	@RequestMapping("/updateStatus")
     public  Result updateStatus(Long[] ids,String status){
