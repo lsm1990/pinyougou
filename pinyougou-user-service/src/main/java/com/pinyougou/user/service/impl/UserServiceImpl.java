@@ -8,9 +8,16 @@ import com.pinyougou.pojo.TbUserExample;
 import com.pinyougou.pojo.TbUserExample.Criteria;
 import com.pinyougou.user.service.UserService;
 import entity.PageResult;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import utils.PhoneFormatCheckUtils;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 服务实现层
@@ -22,6 +29,8 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private TbUserMapper userMapper;
+	@Autowired
+	private RedisTemplate redisTemplate;
 	
 	/**
 	 * 查询全部
@@ -46,7 +55,11 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public void add(TbUser user) {
-		userMapper.insert(user);		
+		user.setCreated(new Date());//创建时间
+		user.setUpdated(new Date());//更新时间
+		String password = DigestUtils.md5Hex(user.getPassword());//使用md5加密
+		user.setPassword(password);
+		userMapper.insert(user);
 	}
 
 	
@@ -132,5 +145,46 @@ public class UserServiceImpl implements UserService {
 		Page<TbUser> page= (Page<TbUser>)userMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	@Override
+	public void createSmsCode(String phone) {
+		//生成随机6位数
+		String code = String.valueOf((new Random().nextInt(899999) + 100000));//生成短信验证码
+		// 设置验证码失效时间为1分钟
+
+
+		System.out.println(code);//后台查看code
+		//存进redis
+		redisTemplate.boundHashOps("smsCode").put(phone,code);
+		//有效时间
+		//redisTemplate.expire("smsCode",5,TimeUnit.MINUTES);
+		//发送到activeMQ
+
+
+
+
+	}
+
+	/**
+	 * 验证验证码是否一致
+	 * @param phone
+	 * @param code
+	 * @return
+	 */
+	@Override
+	public boolean checkSmsCode(String phone, String code) {
+		//得到验证码
+		String sysCode = (String) redisTemplate.boundHashOps("smsCode").get(phone);
+
+
+		 if(!sysCode.equals(code)){
+			return false;
+		}
+		if (sysCode==null) {
+
+			return false;
+		}
+		return true;
+	}
+
 }
