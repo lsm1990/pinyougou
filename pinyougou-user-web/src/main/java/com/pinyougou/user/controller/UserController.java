@@ -1,18 +1,15 @@
 package com.pinyougou.user.controller;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.pinyougou.pojo.TbUser;
 import com.pinyougou.user.service.UserService;
-
 import entity.PageResult;
 import entity.Result;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import utils.PhoneFormatCheckUtils;
+
+import java.util.List;
 
 /**
  * controller
@@ -53,9 +50,8 @@ public class UserController {
 	 */
 	@RequestMapping("/add")
 	public Result add(@RequestBody TbUser user ,String smscode){
+
 		boolean checkSmsCode = userService.checkSmsCode(user.getPhone(),smscode);
-		System.out.println(user.getPhone());
-		System.out.println(checkSmsCode);
 		if(!checkSmsCode){
 			return new Result(false,"验证码不正确");
 		}

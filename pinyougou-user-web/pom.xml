@@ -89,6 +89,23 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
+        <!--整合CAS-->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-cas</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jasig.cas.client</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>3.3.3</version>
+            <!--排除，spring集成了，防止版本冲突-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- 文件上传组件 -->
         <dependency>
@@ -100,12 +117,8 @@
             <artifactId>commons-fileupload</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>5.7.0</version>
-        </dependency>
 
+        <!--项目模块-->
         <dependency>
             <groupId>com.pinyougou</groupId>
             <artifactId>pinyougou-user-interface</artifactId>

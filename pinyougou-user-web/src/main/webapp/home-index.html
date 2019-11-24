@@ -11,14 +11,11 @@
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css" />
     
-    <script type="text/javascript" src="plugins/angularjs/angular.min.js"></script>
-	<script type="text/javascript" src="js/base.js"></script>
-	<script type="text/javascript" src="js/service/loginService.js"></script>
-	<script type="text/javascript" src="js/controller/indexController.js"></script>
+
     
 </head>
 
-<body  ng-app="pinyougou" ng-controller="indexController" ng-init="showName()">
+<body  ng-app="pinyougou" ng-controller="indexController" ng-init="showLoginName()">
     <!-- 头部栏位 -->
     <!--页面顶部-->
 <div id="nav-bottom">
@@ -29,7 +26,9 @@
 				<div class="shortcut">
 					<ul class="fl">
 						<li class="f-item">品优购欢迎您！</li>
-						<li class="f-item">请<a href="login.html" target="_blank">登录</a>　<span><a href="register.html" target="_blank">免费注册</a></span></li>
+						<li class="f-item" >{{loginName}}
+                                  <a href="login.html" target="_blank" ng-if="{{loginName}}==null">登录</a>　
+                            <span><a href="register.html" target="_blank">免费注册</a></span></li>
 					</ul>
 					<ul class="fr">
 						<li class="f-item">我的订单</li>
@@ -63,7 +62,7 @@
 			<div class="py-container">
 				<div class="yui3-g Logo">
 					<div class="yui3-u Left logoArea">
-						<a class="logo-bd" title="品优购" href="JD-index.html" target="_blank"></a>
+						<a class="logo-bd" title="品优购" href="localhost:9103" target="_blank"></a>
 					</div>
 					<div class="yui3-u Center searchArea">
 						<div class="search">
@@ -643,6 +642,9 @@ $(function(){
 	</div>
 </div>
 <!--页面底部END-->
-undefined
+<script type="text/javascript" src="plugins/angularjs/angular.min.js"></script>
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/service/loginService.js"></script>
+<script type="text/javascript" src="js/controller/indexController.js"></script>
 
 </html>
