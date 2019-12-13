@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/cart")
 public class CartController {
 
-    @Reference
+    @Reference(timeout = 6000)
     private CartService cartService;
     @Autowired
     private HttpServletRequest request;
@@ -37,17 +37,36 @@ public class CartController {
     @RequestMapping("/findCartList")
     public List<Cart> findCartList(){
 
+
         //得到登陆人账号,判断当前是否有人登陆
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        final String user ="anonymousUser";
 
 
         String cartListString = CookieUtil.getCookieValue(request,"cartList","UTF-8");
-        if(cartListString==null || cartListString.equals("") ){
+        if(cartListString==null || "".equals(cartListString) ){
+
             cartListString="[]";
         }
-        List<Cart> cartList_cookie = JSON.parseArray(cartListString,Cart.class);
+        List<Cart> cartListCookie = JSON.parseArray(cartListString,Cart.class);
+        //未登录
+        if(user.equals(username)){
+            return cartListCookie;
+        }else{
+            List<Cart> cartListRedis = cartService.findCartListFromRedis(username);
+            //合并购物车
+            if(cartListCookie.size()>0){
+               cartListRedis = cartService.mergeCartList(cartListCookie,cartListRedis);
+               //清除Cookie中的数据
+                CookieUtil.deleteCookie(request,response,"cartList");
+                //合并后存入redis
+                cartService.addCartListToRedis(username,cartListRedis);
+            }
 
-        return cartList_cookie;
+            return  cartListRedis;
+
+        }
+
     }
 
     /**
@@ -65,8 +84,21 @@ public class CartController {
         try{
             List<Cart> cartList = findCartList();
             cartList = cartService.addGoodsToCartList(cartList,itemId,num);
-            CookieUtil.setCookie(request,response,"cartList",JSON.toJSONString(cartList),3600*24,"UTF-8");
+            final String user = "anonymousUser";
+            if(user.equals(name)){
+                CookieUtil.setCookie(request,response,"cartList",JSON.toJSONString(cartList),3600*24,"UTF-8");
+                System.out.println("向cookie存入数据");
+            }else {
+                cartService.addCartListToRedis(name,cartList);
+
+            }
+
             return new Result(true,"添加成功");
+
+        }catch (RuntimeException e) {
+            e.printStackTrace();
+            return new Result(false, e.getMessage());
+
         }catch (Exception e){
             e.printStackTrace();
             return new Result(false,"添加失败");

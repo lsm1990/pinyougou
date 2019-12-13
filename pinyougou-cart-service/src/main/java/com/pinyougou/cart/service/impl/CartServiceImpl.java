@@ -45,11 +45,8 @@ public class CartServiceImpl implements CartService {
        String sellerId = item.getSellerId();
         //3.根据商家ID判断购物车列表中是否存在该商家的购物车
         Cart cart = searchCartBySellerId(cartList,sellerId);
-
-
         //4.如果购物车列表中不存在该商家的购物车
         if(cart==null){
-
             //4.1 新建购物车对象
            cart = new Cart();
            cart.setSellerId(sellerId);
@@ -85,6 +82,41 @@ public class CartServiceImpl implements CartService {
 
         return cartList;
     }
+
+    /**
+     * redis中查找购物车
+     * @param username
+     * @return
+     */
+    @Override
+    public List<Cart> findCartListFromRedis(String username) {
+        System.out.println("从redis查找购物车");
+        List<Cart> cartList = (List<Cart>) redisTemplate.boundHashOps("cartList").get(username);
+        if(cartList==null){
+
+            cartList = new ArrayList();
+        }
+        return cartList;
+    }
+
+    @Override
+    public void addCartListToRedis(String username, List<Cart> cartList) {
+        System.out.println("购物车存入redis");
+        redisTemplate.boundHashOps("cartList").put(username,cartList);
+    }
+
+    @Override
+    public List<Cart> mergeCartList(List<Cart> cartListCookie, List<Cart> cartListRedis) {
+
+        for(Cart cart:cartListCookie){
+            for(TbOrderItem orderItem:cart.getOrderItemlist()){
+                cartListRedis = addGoodsToCartList(cartListRedis,orderItem.getItemId(),orderItem.getNum());
+            }
+
+        }
+        return cartListRedis;
+    }
+
     /**
      * 根据商家ID查询购物车对象
      * @param cartList

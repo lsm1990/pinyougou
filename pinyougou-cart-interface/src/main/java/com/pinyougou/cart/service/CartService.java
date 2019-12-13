@@ -18,4 +18,26 @@ public interface CartService {
      */
     public List<Cart> addGoodsToCartList(List<Cart> cartList,Long itemId,Integer num);
 
+    /**
+     * 由redis查找购物车列表
+     * @param username
+     * @return
+     */
+    public List<Cart> findCartListFromRedis(String username);
+
+    /**
+     * 添加购物车列表到redis
+     * @param username
+     * @param cartList
+     */
+    public void addCartListToRedis(String username,List<Cart> cartList);
+
+    /**
+     * 登录后合并购物车
+     * @param cartListCookie
+     * @param cartListRedis
+     * @return
+     */
+    public List<Cart> mergeCartList(List<Cart> cartListCookie,List<Cart> cartListRedis);
+
 }
